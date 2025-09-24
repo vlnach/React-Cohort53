@@ -1,0 +1,106 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 30px 12px 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter,
+    Arial, sans-serif;
+  color: #111827;
+  background: #ffffff;
+}
+
+h1 {
+  margin: 16px auto 12px;
+  max-width: 1200px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.category-renderer {
+  max-width: 1200px;
+  margin: 0 auto 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-items {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #000000;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.category-items:hover {
+  background: #0054fc;
+  border-color: #d1d5db;
+}
+.category-items.active {
+  background: #000000;
+  color: #fff;
+  border-color: #000000;
+}
+
+.products {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .products {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .products {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.products--item {
+  margin: 0;
+}
+
+.product {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Square media area; contain the image */
+.product--image {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* keep a square like the example */
+  object-fit: contain; /* no cropping; letterboxed if needed */
+  background: #f3f4f6; /* subtle placeholder behind images */
+}
+
+/* Title below the image with ellipsis */
+.product--title {
+  display: block;
+  padding: 10px 12px 12px;
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
