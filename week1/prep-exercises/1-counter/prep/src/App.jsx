@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState, useRef, useMemo } from "react";
 
 function Count({ value }) {
   return <p>count is {value}</p>;
@@ -12,8 +12,16 @@ function Button({ onClick, children, disabled }) {
   );
 }
 
+const condition = Math.random() > 0.5;
+
 function Counter() {
-  const [count, setCount] = useState(0);
+  const [num, setNum] = useState(0);
+  const [power, setPower] = useState(0);
+
+  const something = useMemo(() => {
+    return num ** power;
+  }, [num, power]);
+
   const feedback = count > 10 ? "It's higher than 10!" : "Keep counting...";
 
   return (
@@ -23,8 +31,8 @@ function Counter() {
       <Count value={count} />
 
       <div style={{ display: "flex", gap: 8 }}>
-        <Button onClick={() => setCount((c) => c + 1)}>Add 1!</Button>
-        <Button onClick={() => setCount((c) => Math.max(0, c - 1))}>
+        <Button onClick={() => setNum((c) => c + 1)}>Add 1!</Button>
+        <Button onClick={() => setPower((c) => Math.max(0, c - 1))}>
           Minus 1
         </Button>
         <Button onClick={() => setCount((c) => c + 2)}>+2</Button>
