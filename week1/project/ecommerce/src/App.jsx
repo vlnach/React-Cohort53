@@ -10,11 +10,18 @@ const categories = [
 ];
 
 const normalize = (s) => String(s).toLowerCase();
-const FALLBACK = "https://via.placeholder.com/600x400?text=Image+unavailable";
 
-const imgProxy = (url) =>
-  "https://images.weserv.nl/?url=" +
-  encodeURIComponent(url.replace(/^https?:\/\//, ""));
+const FALLBACK =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
+       <rect width='100%' height='100%' fill='#f2f3f5'/>
+       <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+             fill='#999' font-family='Arial, sans-serif' font-size='20'>
+         Image unavailable
+       </text>
+     </svg>`
+  );
 
 export default function App() {
   const [active, setActive] = useState("all");
@@ -50,9 +57,10 @@ export default function App() {
             <article key={p.id} className="card">
               <div className="imgBox">
                 <img
-                  src={imgProxy(p.image)}
+                  src={p.image}
                   alt={p.title}
                   loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = FALLBACK;
