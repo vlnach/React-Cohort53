@@ -1,5 +1,5 @@
 export default function Person({ person }) {
-  if (!person) return null;
+  if (!person) return <p>Loading...</p>;
 
   return (
     <ul>
