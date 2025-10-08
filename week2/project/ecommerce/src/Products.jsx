@@ -21,35 +21,67 @@ export default function Products() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // load categories once
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(["all", ...data]);
-      })
-      .catch((err) => setError(err.message));
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const res = await fetch("https://fakestoreapi.com/products/categories");
+        if (!res.ok) throw new Error("Failed to fetch categories");
+        const data = await res.json();
+        if (!cancelled) setCategories(["all", ...data]);
+      } catch (err) {
+        // keep UI usable even if categories fail
+        if (!cancelled) {
+          setCategories(["all"]);
+          setError(err.message || "Categories error");
+        }
+      }
+    }
+
+    loadCategories();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  // load products when category changes
   useEffect(() => {
-    setLoading(true);
-    let url =
-      active === "all"
-        ? "https://fakestoreapi.com/products"
-        : `https://fakestoreapi.com/products/category/${active}`;
+    const controller = new AbortController();
 
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch products");
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
+    async function loadProducts() {
+      // reset error and start loading for a fresh request
+      setError(null);
+      setLoading(true);
+
+      const base = "https://fakestoreapi.com/products";
+      const url = active === "all" ? base : `${base}/category/${active}`;
+
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok)
+          throw new Error(`Failed to fetch products (${res.status})`);
+        const data = await res.json();
+
+        // normalize to array and replace old data
+        setProducts(Array.isArray(data) ? data : []);
+        setError(null); // success -> no error
+      } catch (err) {
+        // ignore aborted requests
+        if (err.name === "AbortError") return;
+
+        // show error and remove stale items
+        setProducts([]);
+        setError(err.message || "Unknown error");
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      }
+    }
+
+    loadProducts();
+    // cancel previous in-flight request on category change/unmount
+    return () => controller.abort();
   }, [active]);
 
   return (
@@ -72,7 +104,7 @@ export default function Products() {
 
       <main className="grid">
         {loading && <p>Loading products...</p>}
-        {error && <p className="error">Error: {error}</p>}
+        {!loading && error && <p className="error">Error: {error}</p>}
         {!loading && !error && products.length === 0 && (
           <p className="empty">No products for this category.</p>
         )}
@@ -89,6 +121,7 @@ export default function Products() {
                     loading="lazy"
                     decoding="async"
                     onError={(e) => {
+                      // set a tiny inline fallback image
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = FALLBACK;
                     }}
